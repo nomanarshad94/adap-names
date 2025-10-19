@@ -93,4 +93,4 @@ export class Name {
         this.components.splice(i, 1);
     }
 
-}
+} // test ci
