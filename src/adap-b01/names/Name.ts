@@ -20,14 +20,8 @@ export class Name {
 
     /** Expects that all Name components are properly masked */
     constructor(other: string[], delimiter?: string) {
-
-        if (delimiter) {
-            this.delimiter = delimiter;
-        }
-        else {
-            this.delimiter = DEFAULT_DELIMITER;
-        }
-        this.components = other;
+        this.delimiter = delimiter ?? DEFAULT_DELIMITER;
+        this.components = [...other];
     }
 
     /**
@@ -45,7 +39,12 @@ export class Name {
      * The control characters in the data string are the default characters
      */
     public asDataString(): string {
-        return this.components.join(ESCAPE_CHARACTER);
+        return this.components
+                .map(c => c
+                    .replaceAll(ESCAPE_CHARACTER, ESCAPE_CHARACTER + ESCAPE_CHARACTER)
+                    .replaceAll(this.delimiter, ESCAPE_CHARACTER + this.delimiter)
+                )
+                .join(DEFAULT_DELIMITER);
     }
 
     public getComponent(i: number): string {
@@ -74,11 +73,12 @@ export class Name {
         if (i < 0 || i > this.components.length) {
             throw new Error("Index out of bounds");
         }
-        if (i>= this.components.length) {
+        if (i=== this.components.length) {
             this.append(c);
-            return;
         }
+        else{
         this.components.splice(i, 0, c);
+        }
     }
 
     /** Expects that new Name component c is properly masked */
@@ -93,4 +93,4 @@ export class Name {
         this.components.splice(i, 1);
     }
 
-} // test ci
+}
