@@ -51,18 +51,14 @@ export class Name {
 
     // @methodtype get-method
     public getComponent(i: number): string {
-        if (i < 0 || i >= this.components.length) {
-            throw new Error("Index out of bounds");
-        }
+        this.assertIsValidIndex(i);
         return this.components[i];
     }
 
     /** Expects that new Name component c is properly masked */
     // @methodtype set-method
     public setComponent(i: number, c: string): void {
-        if (i < 0 || i >= this.components.length) {
-            throw new Error("Index out of bounds");
-        }
+        this.assertIsValidIndex(i);
         this.components[i] = c;
 
     }
@@ -95,10 +91,15 @@ export class Name {
 
     // @methodtype command-method
     public remove(i: number): void {
+        this.assertIsValidIndex(i);
+        this.components.splice(i, 1);
+    }
+
+    // @methodtype assertion-method
+    private assertIsValidIndex(i: number): void {
         if (i < 0 || i >= this.components.length) {
             throw new Error("Index out of bounds");
         }
-        this.components.splice(i, 1);
     }
 
 }
