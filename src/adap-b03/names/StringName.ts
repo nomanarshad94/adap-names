@@ -8,64 +8,109 @@ export class StringName extends AbstractName {
     protected noComponents: number = 0;
 
     constructor(source: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        super(delimiter);
+        this.name = source;
+        this.noComponents = this.parseComponents().length;
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+    /**
+     * Parses the internal string into components based on delimiter and escape characters
+     */
+    // @methodtype conversion-method
+    private parseComponents(): string[] {
+        if (this.name === "") {
+            return [];
+        }
+
+        const components: string[] = [];
+        let currentComponent = "";
+        let i = 0;
+
+        while (i < this.name.length) {
+            const char = this.name[i];
+
+            if (char === ESCAPE_CHARACTER) {
+                if (i + 1 < this.name.length) {
+                    // Escape sequence - keep the escape and next character
+                    currentComponent += ESCAPE_CHARACTER + this.name[i + 1];
+                    i += 2;
+                } else {
+                    // Trailing escape character with nothing to escape
+                    throw new Error("Invalid escape sequence: trailing escape character");
+                }
+            } else if (char === this.delimiter) {
+                // Found unescaped delimiter - finish current component
+                components.push(currentComponent);
+                currentComponent = "";
+                i++;
+            } else {
+                // Regular character
+                currentComponent += char;
+                i++;
+            }
+        }
+
+        // Add the last component
+        components.push(currentComponent);
+
+        return components;
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
+    // @methodtype get-method
     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+        return this.noComponents;
     }
 
+    // @methodtype get-method
     public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+        this.assertIsValidIndex(i);
+        const components = this.parseComponents();
+        return components[i];
     }
 
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype set-method
+    public setComponent(i: number, c: string): void {
+        this.assertIsValidIndex(i);
+        const components = this.parseComponents();
+        components[i] = c;
+        this.name = components.join(this.delimiter);
     }
 
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype command-method
+    public insert(i: number, c: string): void {
+        if (i < 0 || i > this.noComponents) {
+            throw new Error("Index out of bounds.");
+        }
+        const components = this.parseComponents();
+        components.splice(i, 0, c);
+        this.name = components.join(this.delimiter);
+        this.noComponents++;
     }
 
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype command-method
+    public append(c: string): void {
+        if (this.isEmpty()) {
+            this.name = c;
+        } else {
+            this.name += this.delimiter + c;
+        }
+        this.noComponents++;
     }
 
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype command-method
+    public remove(i: number): void {
+        this.assertIsValidIndex(i);
+        const components = this.parseComponents();
+        components.splice(i, 1);
+        this.name = components.join(this.delimiter);
+        this.noComponents--;
     }
 
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+    // @methodtype assertion-method
+    private assertIsValidIndex(i: number): void {
+        if (i < 0 || i >= this.noComponents) {
+            throw new Error("Index out of bounds.");
+        }
     }
 
 }
