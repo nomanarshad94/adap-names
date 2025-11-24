@@ -10,50 +10,7 @@ export class StringName extends AbstractName {
     constructor(source: string, delimiter?: string) {
         super(delimiter);
         this.name = source;
-        this.noComponents = this.parseComponents().length;
-    }
-
-    /**
-     * Parses the internal string into components based on delimiter and escape characters
-     */
-    // @methodtype conversion-method
-    private parseComponents(): string[] {
-        if (this.name === "") {
-            return [];
-        }
-
-        const components: string[] = [];
-        let currentComponent = "";
-        let i = 0;
-
-        while (i < this.name.length) {
-            const char = this.name[i];
-
-            if (char === ESCAPE_CHARACTER) {
-                if (i + 1 < this.name.length) {
-                    // Escape sequence - keep the escape and next character
-                    currentComponent += ESCAPE_CHARACTER + this.name[i + 1];
-                    i += 2;
-                } else {
-                    // Trailing escape character with nothing to escape
-                    throw new Error("Invalid escape sequence: trailing escape character");
-                }
-            } else if (char === this.delimiter) {
-                // Found unescaped delimiter - finish current component
-                components.push(currentComponent);
-                currentComponent = "";
-                i++;
-            } else {
-                // Regular character
-                currentComponent += char;
-                i++;
-            }
-        }
-
-        // Add the last component
-        components.push(currentComponent);
-
-        return components;
+        this.noComponents = this.asComponentArray().length;
     }
 
     // @methodtype get-method
@@ -64,14 +21,14 @@ export class StringName extends AbstractName {
     // @methodtype get-method
     public getComponent(i: number): string {
         this.assertIsValidIndex(i);
-        const components = this.parseComponents();
+        const components = this.asComponentArray();
         return components[i];
     }
 
     // @methodtype set-method
     public setComponent(i: number, c: string): void {
         this.assertIsValidIndex(i);
-        const components = this.parseComponents();
+        const components = this.asComponentArray();
         components[i] = c;
         this.name = components.join(this.delimiter);
     }
@@ -81,7 +38,7 @@ export class StringName extends AbstractName {
         if (i < 0 || i > this.noComponents) {
             throw new Error("Index out of bounds.");
         }
-        const components = this.parseComponents();
+        const components = this.asComponentArray();
         components.splice(i, 0, c);
         this.name = components.join(this.delimiter);
         this.noComponents++;
@@ -100,17 +57,23 @@ export class StringName extends AbstractName {
     // @methodtype command-method
     public remove(i: number): void {
         this.assertIsValidIndex(i);
-        const components = this.parseComponents();
+        const components = this.asComponentArray();
         components.splice(i, 1);
         this.name = components.join(this.delimiter);
         this.noComponents--;
     }
 
-    // @methodtype assertion-method
-    private assertIsValidIndex(i: number): void {
-        if (i < 0 || i >= this.noComponents) {
-            throw new Error("Index out of bounds.");
-        }
+    // @methodtype conversion-method
+    private asComponentArray(): string[] {
+        const escapedDelimiter = this.escapeRegexInput(this.delimiter);
+        const escapedEscapeCharacter = this.escapeRegexInput(ESCAPE_CHARACTER);
+        const regex = new RegExp(`(?<!${escapedEscapeCharacter})${escapedDelimiter}`, 'g');
+        return this.name.split(regex);
+    }
+
+    // @methodtype helper-method
+    private escapeRegexInput(input: string): string {
+        return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
 }

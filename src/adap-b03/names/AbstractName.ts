@@ -112,26 +112,21 @@ export abstract class AbstractName implements Name {
         }
     }
 
-    /**
-     * Removes escape characters to produce unmasked string
-     */
     // @methodtype conversion-method
     protected unmaskComponent(c: string, delimiter: string): string {
-        // First unescape delimiters, then unescape backslashes
-        return c
-            .replaceAll(ESCAPE_CHARACTER + delimiter, delimiter)
-            .replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER);
+        return c.replaceAll(ESCAPE_CHARACTER + delimiter, delimiter);
     }
 
-    /**
-     * Adds escape characters to mask special characters
-     */
     // @methodtype conversion-method
     protected maskComponent(c: string, delimiter: string): string {
-        // First escape backslashes, then escape delimiters
-        return c
-            .replaceAll(ESCAPE_CHARACTER, ESCAPE_CHARACTER + ESCAPE_CHARACTER)
-            .replaceAll(delimiter, ESCAPE_CHARACTER + delimiter);
+        return c.replaceAll(delimiter, ESCAPE_CHARACTER + delimiter);
+    }
+
+    // @methodtype assertion-method
+    protected assertIsValidIndex(i: number): void {
+        if (i < 0 || i >= this.getNoComponents()) {
+            throw new Error("Index out of bounds.");
+        }
     }
 
 }

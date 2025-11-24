@@ -1,12 +1,9 @@
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
-import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 
 export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
-    /** Expects that all Name components are properly masked */
     constructor(source: string[], delimiter?: string) {
         super(delimiter);
         this.components = [...source];
@@ -46,13 +43,6 @@ export class StringArrayName extends AbstractName {
     public remove(i: number): void {
         this.assertIsValidIndex(i);
         this.components.splice(i, 1);
-    }
-
-    // @methodtype assertion-method
-    private assertIsValidIndex(i: number): void {
-        if (i < 0 || i >= this.components.length) {
-            throw new Error("Index out of bounds.");
-        }
     }
 
 }
