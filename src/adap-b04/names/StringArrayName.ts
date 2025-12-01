@@ -1,69 +1,74 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
     constructor(source: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assert(source !== undefined && source !== null, "source must not be null or undefined");
+        super(delimiter);
+        this.components = [...source];
+        this.assertClassInvariants();
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
+    // @methodtype get-method
     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+        return this.components.length;
     }
 
+    // @methodtype get-method
     public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+        this.assertIsValidIndex(i);
+        return this.components[i];
     }
 
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype set-method
+    public setComponent(i: number, c: string): void {
+        this.assertIsValidIndex(i);
+        IllegalArgumentException.assert(c !== undefined && c !== null, "component must not be null or undefined");
+
+        const oldCount = this.getNoComponents();
+        this.components[i] = c;
+
+        MethodFailedException.assert(this.getNoComponents() === oldCount, "setComponent must not change component count");
+        this.assertClassInvariants();
     }
 
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype command-method
+    public insert(i: number, c: string): void {
+        IllegalArgumentException.assert(i >= 0 && i <= this.getNoComponents(), "index out of bounds for insert");
+        IllegalArgumentException.assert(c !== undefined && c !== null, "component must not be null or undefined");
+
+        const oldCount = this.getNoComponents();
+        this.components.splice(i, 0, c);
+
+        MethodFailedException.assert(this.getNoComponents() === oldCount + 1, "insert must increase component count by 1");
+        this.assertClassInvariants();
     }
 
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
+    // @methodtype command-method
+    public append(c: string): void {
+        IllegalArgumentException.assert(c !== undefined && c !== null, "component must not be null or undefined");
+
+        const oldCount = this.getNoComponents();
+        this.components.push(c);
+
+        MethodFailedException.assert(this.getNoComponents() === oldCount + 1, "append must increase component count by 1");
+        this.assertClassInvariants();
     }
 
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
+    // @methodtype command-method
+    public remove(i: number): void {
+        this.assertIsValidIndex(i);
 
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+        const oldCount = this.getNoComponents();
+        this.components.splice(i, 1);
+
+        MethodFailedException.assert(this.getNoComponents() === oldCount - 1, "remove must decrease component count by 1");
+        this.assertClassInvariants();
     }
 }
