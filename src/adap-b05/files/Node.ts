@@ -1,5 +1,6 @@
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
+import { ServiceFailureException } from "../common/ServiceFailureException";
 
 import { Name } from "../names/Name";
 import { Directory } from "./Directory";
@@ -57,7 +58,30 @@ export class Node {
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
-        throw new Error("needs implementation or deletion");
+        try {
+            return this.doFindNodes(bn);
+        } catch (ex) {
+            if (ex instanceof InvalidStateException) {
+                throw new ServiceFailureException("findNodes failed", ex);
+            }
+            throw ex;
+        }
+    }
+
+    protected doFindNodes(bn: string): Set<Node> {
+        const result: Set<Node> = new Set<Node>();
+        const baseName = this.doGetBaseName();
+
+        // Validate class invariant: basename should not be empty for non-root nodes
+        if (baseName === "" && this.parentNode !== this) {
+            throw new InvalidStateException("basename is empty");
+        }
+
+        if (baseName === bn) {
+            result.add(this);
+        }
+
+        return result;
     }
 
 }

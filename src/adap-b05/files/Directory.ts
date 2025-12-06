@@ -20,4 +20,16 @@ export class Directory extends Node {
         this.childNodes.delete(cn); // Yikes! Should have been called remove
     }
 
+    protected doFindNodes(bn: string): Set<Node> {
+        const result: Set<Node> = super.doFindNodes(bn);
+
+        // Recursively search through all child nodes
+        for (const child of this.childNodes) {
+            const childResults = child.findNodes(bn);
+            childResults.forEach(node => result.add(node));
+        }
+
+        return result;
+    }
+
 }
