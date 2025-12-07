@@ -1,6 +1,7 @@
 import { Name } from "../names/Name";
 import { StringName } from "../names/StringName";
 import { Directory } from "./Directory";
+import { Node } from "./Node";
 
 export class RootNode extends Directory {
 
@@ -28,6 +29,19 @@ export class RootNode extends Directory {
 
     protected doSetBaseName(bn: string): void {
         // null operation
+    }
+
+    protected doFindNodes(bn: string): Set<Node> {
+        // RootNode has empty basename by design, skip validation
+        const result: Set<Node> = new Set<Node>();
+
+        // Recursively search through all child nodes
+        for (const child of this.childNodes) {
+            const childResults = child.findNodes(bn);
+            childResults.forEach(node => result.add(node));
+        }
+
+        return result;
     }
 
 }

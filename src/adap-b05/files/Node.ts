@@ -72,8 +72,8 @@ export class Node {
         const result: Set<Node> = new Set<Node>();
         const baseName = this.doGetBaseName();
 
-        // Validate class invariant: basename should not be empty for non-root nodes
-        if (baseName === "" && this.parentNode !== this) {
+        // Validate class invariant: basename should not be empty
+        if (baseName === "") {
             throw new InvalidStateException("basename is empty");
         }
 
